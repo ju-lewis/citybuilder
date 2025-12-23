@@ -3,7 +3,7 @@ use termion::color::{self, Fg};
 
 use super::generation::generate_map;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum CellType {
     Water,
     Sand,

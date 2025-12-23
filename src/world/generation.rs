@@ -14,9 +14,21 @@ pub fn generate_map(size: (usize, usize)) -> Map {
     for row in 0..map.size.0 {
         for col in 0..map.size.1 {
 
-            if is_in_ocean((row, col)) {
+            let coord = (row, col);
+
+            if is_in_ocean(coord) {
                 map.cells[row][col].cell_type = CellType::Water;
                 map.cells[row][col].val = *['~', '-', '='].choose(&mut rng).expect("RNG failed.");
+            } else if is_on_beach(coord) {
+                map.cells[row][col].cell_type = CellType::Sand;
+                map.cells[row][col].val = *['#', '@'].choose(&mut rng).expect("RNG failed.");
+            }
+
+
+
+            // Add some detailing to remaining grass
+            if map.cells[row][col].cell_type == CellType::Grass {
+                map.cells[row][col].val = *['\'', '`', ',', '♠'].choose(&mut rng).expect("RNG failed.");
             }
         }
     }
@@ -26,14 +38,20 @@ pub fn generate_map(size: (usize, usize)) -> Map {
 }
 
 
-fn is_in_ocean(coord: (usize, usize)) -> bool {
-    
-    let shoreline = ((coord.0 as f32 * 0.17).sin() + 2.0) * 10.0;
-
-    return (coord.1 as f32) < shoreline;
+fn compute_shoreline(coord: (usize, usize)) -> f32 {
+    return ((coord.0 as f32 * 0.17).sin() + 2.0) * 10.0;
 }
 
 
-fn is_on_beach() -> bool {
-    todo!();
+
+fn is_in_ocean(coord: (usize, usize)) -> bool {
+    
+    return (coord.1 as f32) < compute_shoreline(coord);
+}
+
+
+fn is_on_beach(coord: (usize, usize)) -> bool {
+    let dist = coord.1 as f32 - compute_shoreline(coord);
+
+    dist > 0.0 && dist < 5.0
 }
