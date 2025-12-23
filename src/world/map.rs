@@ -16,15 +16,16 @@ pub enum CellType {
 
 #[derive(Clone)]
 pub struct MapCell {
-    pub cell_type: CellType
+    pub cell_type: CellType,
+    pub val: char
 }
 
 impl MapCell {
     pub fn render(&self) -> String {
         match self.cell_type {
-            CellType::Water => format!("{}~",  Fg(color::Cyan)),
-            CellType::Sand  => format!("{}#",  Fg(color::Yellow)),
-            CellType::Grass => format!("{}\"", Fg(color::LightGreen)),
+            CellType::Water => format!("{}{}",  Fg(color::Cyan), self.val),
+            CellType::Sand  => format!("{}{}",  Fg(color::Yellow), self.val),
+            CellType::Grass => format!("{}{}", Fg(color::LightGreen), self.val),
         }
     }
 }
@@ -46,7 +47,8 @@ impl Map {
 
         // Empty cell
         let c = MapCell {
-            cell_type: CellType::Grass
+            cell_type: CellType::Grass,
+            val: '\"'
         };
 
         Map {
