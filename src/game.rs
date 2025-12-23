@@ -49,7 +49,7 @@ impl Game {
     pub fn play(&mut self) {
 
         // Force terminal into raw mode
-        let mut stdout = stdout().into_raw_mode().unwrap();
+        let stdout = stdout().into_raw_mode().unwrap();
         let mut stdin = async_stdin();
         let mut key_buf = [0u8; 1];
 

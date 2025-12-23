@@ -63,14 +63,14 @@ pub fn generate_map(size: (usize, usize)) -> Map {
                 }
 
                 if (x as f32).hypot(y as f32) < 3.5 {
-                    map.cells[(coord.0 as i32 + y) as usize][(coord.1 as i32 + x) as usize].cell_type = CellType::Leaves{tree_id: i as u32};
+                    map.cells[(coord.0 as i32 + y) as usize][(coord.1 as i32 + x) as usize].cell_type = CellType::Leaves{id: i as u32};
                     map.cells[(coord.0 as i32 + y) as usize][(coord.1 as i32 + x) as usize].val = *['░', '▒'].choose(&mut rng).expect("RNG failed.");
                 }
             }
         }
 
         // Draw trunk (overwriting leaves)
-        map.cells[coord.0][coord.1].cell_type = CellType::TreeTrunk{tree_id: i as u32};
+        map.cells[coord.0][coord.1].cell_type = CellType::TreeTrunk{id: i as u32};
         map.cells[coord.0][coord.1].val = '0';
 
         // Record tree in data structure

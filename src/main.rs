@@ -2,6 +2,7 @@
 mod world;
 mod rendering;
 mod game;
+mod entities;
 
 
 use game::Game;
