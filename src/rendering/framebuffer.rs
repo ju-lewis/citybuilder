@@ -3,13 +3,13 @@ use termion::color::{self, Color};
 
 
 
-struct Pixel {
+pub struct Pixel {
     pub val: String,
 }
 
 pub struct Framebuffer {
-    buf: Vec<Vec<Pixel>>,
-    size: (u16, u16)
+    pub buf: Vec<Vec<Pixel>>,
+    size: (usize, usize)
 }
 
 
@@ -21,10 +21,10 @@ impl Pixel {
         }
     }
 
-    pub fn set<C: Color>(&mut self, val: char, color: C) {
+    pub fn set(&mut self, val: String) {
         
         // Ad-hoc render the pixel into its own buffer
-        self.val = format!("{}{}", color::Fg(color), val);
+        self.val = val;
     }
 }
 
@@ -44,13 +44,13 @@ impl Framebuffer {
         let size = termion::terminal_size().expect("Unable to obtain terminal size.");
 
 
-        let mut x = Framebuffer {
-            buf: vec![vec![Pixel::new(); size.0.into()]; size.1.into()],
-            size
+        let x = Framebuffer {
+            buf: vec![vec![Pixel::new(); size.1.into()]; size.0.into()],
+            size: (size.0.into(), size.1.into())
         };
 
         // TEMP
-        x.buf[10][10].set('#', color::LightGreen);
+        //x.buf[10][10].set('#', color::LightGreen);
 
 
         return x;
@@ -66,6 +66,10 @@ impl Framebuffer {
             .fold(String::new(), |acc, row| acc + "\r\n" + &row);
         
         print!("{}{}", termion::cursor::Goto(1,1), rendered);
+    }
+
+    pub fn get_size(&self) -> (usize, usize) {
+        return self.size;
     }
 }
 

@@ -1,23 +1,17 @@
 
 mod rendering;
+mod world;
+mod game;
 
+use game::Game;
 
-use rendering::framebuffer::Framebuffer;
 
 
 
 fn main() {
 
-    // Create framebuffer
-    let buf = Framebuffer::new();
+    let mut game = Game::new();
 
-
-    // Game loop
-    loop {
-        
-        
-        buf.draw();
-    }
-    
+    game.play();
 
 }
