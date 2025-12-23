@@ -41,12 +41,15 @@ impl Framebuffer {
 
     pub fn new() -> Self {
 
-        let size = termion::terminal_size().expect("Unable to obtain terminal size.");
+        let column_row_shape = termion::terminal_size().expect("Unable to obtain terminal size.");
+
+        // Change to (row, column) for internal use
+        let size = (column_row_shape.1 as usize - 1, column_row_shape.0 as usize);
 
 
         let x = Framebuffer {
-            buf: vec![vec![Pixel::new(); size.1.into()]; size.0.into()],
-            size: (size.0.into(), size.1.into())
+            buf: vec![vec![Pixel::new(); size.1]; size.0],
+            size
         };
 
         // TEMP

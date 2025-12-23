@@ -30,8 +30,8 @@ impl Game {
 
         for row in 0..self.map.size.0 {
             for col in 0..self.map.size.1 {
-                let pixel = &mut self.framebuffer.buf[col][row];
-                let map_cell = &self.map.cells[col][row];
+                let pixel = &mut self.framebuffer.buf[row][col];
+                let map_cell = &self.map.cells[row][col];
 
                 pixel.set(map_cell.render());
             }

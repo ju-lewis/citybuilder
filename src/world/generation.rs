@@ -8,6 +8,13 @@ pub fn generate_map(size: (usize, usize)) -> Map {
     
 
     let mut cells = vec![vec![size.1]; size.0];
+
+    // Generate ocean
+    for row in 0..size.0 {
+        for col in 0..size.1 {
+            // TODO
+        }
+    }
     
 
     Map {
