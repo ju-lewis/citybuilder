@@ -28,7 +28,7 @@ impl MapCell {
             CellType::Water => format!("{}{}",  Fg(color::Cyan), self.val),
             CellType::Sand  => format!("{}{}",  Fg(color::Yellow), self.val),
             CellType::Grass => format!("{}{}", Fg(color::Green), self.val),
-            CellType::TreeTrunk => format!("{}{}", Fg(color::Rgb(165,92,92)), self.val),
+            CellType::TreeTrunk => format!("{}{}", Fg(color::Rgb(139, 69, 19)), self.val),
             CellType::Leaves => format!("{}{}", Fg(color::LightGreen), self.val),
         }
     }

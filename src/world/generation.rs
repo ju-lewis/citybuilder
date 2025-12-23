@@ -50,8 +50,27 @@ pub fn generate_map(size: (usize, usize)) -> Map {
             coord.1 = rand::random_range(1..map.size.1);
         }
 
+
+
+        // Draw surrounding leaves
+        for x in -5..=5 {
+            for y in -2..=2 {
+
+                if coord.0 as i32 + y < 0 || coord.1 as i32 + x < 0 ||
+                   coord.0 as i32 + y >= map.size.0 as i32 || coord.1 as i32 + x >= map.size.1 as i32 {
+                    continue;
+                }
+
+                if (x as f32).hypot(y as f32) < 3.5 {
+                    map.cells[(coord.0 as i32 + y) as usize][(coord.1 as i32 + x) as usize].cell_type = CellType::Leaves;
+                    map.cells[(coord.0 as i32 + y) as usize][(coord.1 as i32 + x) as usize].val = *['░', '▒'].choose(&mut rng).expect("RNG failed.");
+                }
+            }
+        }
+
+        // Draw trunk (overwriting leaves)
         map.cells[coord.0][coord.1].cell_type = CellType::TreeTrunk;
-        map.cells[coord.0][coord.1].val = '◯';
+        map.cells[coord.0][coord.1].val = '0';
 
     }
     
