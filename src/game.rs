@@ -1,4 +1,11 @@
 
+use std::io::{Read, stdout};
+use std::process::exit;
+
+use termion::async_stdin;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
+
 use crate::world::map::Map;
 use crate::rendering::framebuffer::Framebuffer;
 
@@ -41,12 +48,22 @@ impl Game {
 
     pub fn play(&mut self) {
 
+        // Force terminal into raw mode
+        let mut stdout = stdout().into_raw_mode().unwrap();
+        let mut stdin = async_stdin();
+        let mut key_buf = [0u8; 1];
+
         // Game loop
         loop {
 
+            if stdin.read(&mut key_buf).is_ok() && key_buf[0] == b'q' {
+                print!("{}{}{}", termion::style::Reset, termion::clear::All, termion::cursor::Restore);
+                let _ = stdout.suspend_raw_mode();
+                exit(0);
+            }
+            
+
             self.debug_render_all();
-            
-            
             self.framebuffer.draw();
         }
     }

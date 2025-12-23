@@ -8,8 +8,8 @@ pub enum CellType {
     Water,
     Sand,
     Grass,
-    TreeTrunk,
-    Leaves,
+    TreeTrunk {tree_id: u32},
+    Leaves {tree_id: u32},
     // TODO: Add more cell types
 }
 
@@ -28,8 +28,8 @@ impl MapCell {
             CellType::Water => format!("{}{}",  Fg(color::Cyan), self.val),
             CellType::Sand  => format!("{}{}",  Fg(color::Yellow), self.val),
             CellType::Grass => format!("{}{}", Fg(color::Green), self.val),
-            CellType::TreeTrunk => format!("{}{}", Fg(color::Rgb(139, 69, 19)), self.val),
-            CellType::Leaves => format!("{}{}", Fg(color::LightGreen), self.val),
+            CellType::TreeTrunk{tree_id: _} => format!("{}{}", Fg(color::Rgb(139, 69, 19)), self.val),
+            CellType::Leaves{tree_id: _} => format!("{}{}", Fg(color::LightGreen), self.val),
         }
     }
 }
@@ -42,7 +42,9 @@ impl MapCell {
 /// Has a 1-1 correspondance with the framebuffer
 pub struct Map {
     pub cells: Vec<Vec<MapCell>>,
-    pub size: (usize, usize)
+    pub size: (usize, usize),
+
+    pub trees: Vec<u32>
 }
 
 
@@ -57,7 +59,8 @@ impl Map {
 
         Map {
             cells: vec![vec![c; size.1.into()]; size.0.into()],
-            size
+            size,
+            trees: Vec::new()
         }
     }
 

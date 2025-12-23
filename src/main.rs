@@ -1,14 +1,15 @@
 
-mod rendering;
 mod world;
+mod rendering;
 mod game;
+
 
 use game::Game;
 
 
 
-
 fn main() {
+
 
     let mut game = Game::new();
 
