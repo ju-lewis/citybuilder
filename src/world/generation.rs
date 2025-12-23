@@ -28,7 +28,7 @@ pub fn generate_map(size: (usize, usize)) -> Map {
 
             // Add some detailing to remaining grass
             if map.cells[row][col].cell_type == CellType::Grass {
-                map.cells[row][col].val = *['\'', '`', ',', '♠'].choose(&mut rng).expect("RNG failed.");
+                map.cells[row][col].val = *['\'', '`', ',', '♠', '.', '♣', '\"', 'ι', '\"', '\"', '\'', ','].choose(&mut rng).expect("RNG failed.");
             }
         }
     }
