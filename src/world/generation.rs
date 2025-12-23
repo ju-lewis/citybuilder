@@ -32,6 +32,28 @@ pub fn generate_map(size: (usize, usize)) -> Map {
             }
         }
     }
+
+
+    // Generate Trees
+    let num_trees = rand::random_range(5..20);
+
+    for _ in 0..num_trees {
+        let mut coord: (usize, usize) = (0,0);
+
+        // Loop until we get a position that's on the grass
+        loop {
+            if map.cells[coord.0][coord.1].cell_type == CellType::Grass {
+                break;
+            } 
+
+            coord.0 = rand::random_range(1..map.size.0);
+            coord.1 = rand::random_range(1..map.size.1);
+        }
+
+        map.cells[coord.0][coord.1].cell_type = CellType::TreeTrunk;
+        map.cells[coord.0][coord.1].val = '◯';
+
+    }
     
 
     return map;
