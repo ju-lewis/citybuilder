@@ -18,7 +18,7 @@ impl Game {
 
         Game {
             paused: false,
-            map: Map::empty(buf.get_size()),
+            map: Map::new(buf.get_size()),
             framebuffer: buf
         }
     }

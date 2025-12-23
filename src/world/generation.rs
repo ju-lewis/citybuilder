@@ -1,4 +1,4 @@
-use super::map::Map;
+use super::map::{CellType, Map};
 
 use rand;
 
@@ -6,27 +6,26 @@ use rand;
 
 pub fn generate_map(size: (usize, usize)) -> Map {
     
-
-    let mut cells = vec![vec![size.1]; size.0];
+    let mut map = Map::empty(size);
 
     // Generate ocean
-    for row in 0..size.0 {
-        for col in 0..size.1 {
-            // TODO
+    for row in 0..map.size.0 {
+        for col in 0..map.size.1 {
+
+            if is_in_ocean((row, col)) {
+                map.cells[row][col].cell_type = CellType::Water;
+            }
         }
     }
     
 
-    Map {
-        cells: vec![],
-        size: (0,0)
-    }
+    return map;
 }
 
 
-fn is_in_ocean(xy: (usize, usize)) -> bool {
+fn is_in_ocean(coord: (usize, usize)) -> bool {
     
-    xy.0 < 50
+    coord.1 < 20
 }
 
 

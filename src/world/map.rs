@@ -1,6 +1,8 @@
 
 use termion::color::{self, Fg};
 
+use super::generation::generate_map;
+
 #[derive(Clone)]
 pub enum CellType {
     Water,
@@ -14,13 +16,13 @@ pub enum CellType {
 
 #[derive(Clone)]
 pub struct MapCell {
-    cell_type: CellType
+    pub cell_type: CellType
 }
 
 impl MapCell {
     pub fn render(&self) -> String {
         match self.cell_type {
-            CellType::Water => format!("{}~",  Fg(color::Blue)),
+            CellType::Water => format!("{}~",  Fg(color::Cyan)),
             CellType::Sand  => format!("{}#",  Fg(color::Yellow)),
             CellType::Grass => format!("{}\"", Fg(color::LightGreen)),
         }
@@ -51,6 +53,10 @@ impl Map {
             cells: vec![vec![c; size.1.into()]; size.0.into()],
             size
         }
+    }
+
+    pub fn new(size: (usize, usize)) -> Self {
+        generate_map(size)
     }
 }
 
