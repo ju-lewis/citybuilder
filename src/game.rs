@@ -1,6 +1,8 @@
 
 use std::io::{Read, stdout};
 use std::process::exit;
+use std::thread;
+use std::time::Duration;
 
 use termion::async_stdin;
 use termion::raw::IntoRawMode;
@@ -54,6 +56,8 @@ impl Game {
 
         // Game loop
         loop {
+
+            //thread::sleep(Duration::from_millis(100));
 
             
             if stdin.read(&mut key_buf).is_ok() && key_buf[0] == b'q' {

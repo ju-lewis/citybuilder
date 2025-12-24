@@ -57,21 +57,32 @@ pub fn generate_map(size: (usize, usize)) -> Map {
         for x in -5..=5 {
             for y in -2..=2 {
 
-                if coord.0 as i32 + y < 0 || coord.1 as i32 + x < 0 ||
-                   coord.0 as i32 + y >= map.size.0 as i32 || coord.1 as i32 + x >= map.size.1 as i32 {
-                    continue;
-                }
+                let new_row = coord.0.saturating_add_signed(y);
+                let new_col = coord.1.saturating_add_signed(x);
+                
+                if new_row >= map.size.0 || new_col >= map.size.1 {continue;}
+
 
                 if (x as f32).hypot(y as f32) < 3.5 {
-                    map.cells[(coord.0 as i32 + y) as usize][(coord.1 as i32 + x) as usize].cell_type = CellType::Leaves{id: i as u32};
-                    map.cells[(coord.0 as i32 + y) as usize][(coord.1 as i32 + x) as usize].val = *['░', '▒'].choose(&mut rng).expect("RNG failed.");
+
+                    let cell = &mut map.cells[new_row][new_col];
+
+                    // Record covered cell contents
+                    cell.covered.push((cell.cell_type.clone(), cell.val));
+
+                    cell.cell_type = CellType::Leaves{id: i as u32};
+                    cell.val = *['░', '▒'].choose(&mut rng).expect("RNG failed.");
                 }
             }
         }
 
         // Draw trunk (overwriting leaves)
-        map.cells[coord.0][coord.1].cell_type = CellType::TreeTrunk{id: i as u32};
-        map.cells[coord.0][coord.1].val = '0';
+        let trunk_cell = &mut map.cells[coord.0][coord.1];
+
+        trunk_cell.covered.push((trunk_cell.cell_type.clone(), trunk_cell.val));
+
+        trunk_cell.cell_type = CellType::TreeTrunk{id: i as u32};
+        trunk_cell.val = '0';
 
         // Record tree in data structure
         map.trees.push(i as u32);

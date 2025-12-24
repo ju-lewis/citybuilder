@@ -3,6 +3,10 @@ use termion::color::{self, Fg};
 use crate::entities::human::{Action, Human};
 use super::generation::generate_map;
 
+
+const NUM_HUMANS: u32 = 10;
+
+
 #[derive(Clone, PartialEq)]
 pub enum CellType {
     Water,
@@ -22,8 +26,8 @@ pub struct MapCell {
     pub cell_type: CellType,
     pub val: char,
 
-    pub covered_type: Option<CellType>,
-    pub covered_val: Option<char>,
+    // We have a stack of occluded cell contents
+    pub covered: Vec<(CellType, char)>,
 }
 
 impl MapCell {
@@ -73,8 +77,7 @@ impl Map {
             cell_type: CellType::Grass,
             val: '\"',
 
-            covered_type: None,
-            covered_val: None
+            covered: Vec::new(),
         };
 
         Map {
@@ -95,10 +98,9 @@ impl Map {
 
     fn populate_humans(&mut self) {
         
-        let num_humans = 10;
-        self.humans.reserve(num_humans);
+        self.humans.reserve(NUM_HUMANS.try_into().expect("Couldn't cast number of humans to usize"));
 
-        for i in 0..num_humans {
+        for i in 0..NUM_HUMANS {
 
             // Place human on the map (on a grass tile)
             let mut coord: (usize, usize) = (0, 0);
@@ -119,9 +121,7 @@ impl Map {
             let new_human = Human::new(i as u32, coord);
 
             // Record original contents of cell as 'covered'
-            chosen_cell.covered_val = Some(chosen_cell.val);
-            chosen_cell.covered_type = Some(chosen_cell.cell_type.clone());
-
+            chosen_cell.covered.push((chosen_cell.cell_type.clone(), chosen_cell.val));
 
 
             chosen_cell.cell_type = CellType::Human {id: i as u32};
@@ -181,22 +181,22 @@ impl Map {
         if self.cells[coord_1.0][coord_1.1].is_moveable() && self.is_walkable(coord_2) {
 
             // Move coord_2 stuff to the background
-            self.cells[coord_2.0][coord_2.1].covered_val = Some(self.cells[coord_2.0][coord_2.1].val);
-            self.cells[coord_2.0][coord_2.1].covered_type = Some(self.cells[coord_2.0][coord_2.1].cell_type.clone());
+            let old_type = self.cells[coord_2.0][coord_2.1].cell_type.clone();
+            let old_val  = self.cells[coord_2.0][coord_2.1].val;
 
+            self.cells[coord_2.0][coord_2.1].covered.push((
+                old_type,
+                old_val
+            ));
 
             // Now write to the 'top layer' of coord_2
             self.cells[coord_2.0][coord_2.1].cell_type = self.cells[coord_1.0][coord_1.1].cell_type.clone();
             self.cells[coord_2.0][coord_2.1].val = self.cells[coord_1.0][coord_1.1].val;
 
             // Reset cell at coord_1
-            if let Some(t) = &self.cells[coord_1.0][coord_1.1].covered_type {
+            if let Some((t,v)) = &self.cells[coord_1.0][coord_1.1].covered.pop() {
                 self.cells[coord_1.0][coord_1.1].cell_type = t.clone();
-                self.cells[coord_1.0][coord_1.1].covered_type = None;
-            }
-            if let Some(v) = &self.cells[coord_1.0][coord_1.1].covered_val {
-                self.cells[coord_1.0][coord_1.1].val = v.clone();
-                self.cells[coord_1.0][coord_1.1].covered_val = None;
+                self.cells[coord_1.0][coord_1.1].val = *v;
             }
             return Ok(());
         }
