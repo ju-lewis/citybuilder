@@ -5,6 +5,7 @@ use super::generation::generate_map;
 
 
 const NUM_HUMANS: u32 = 10;
+const MAX_COORD_LOCATION_ATTEMPTS: u32 = 10;
 
 
 #[derive(Clone, PartialEq)]
@@ -202,6 +203,31 @@ impl Map {
         }
 
         Err(())
+    }
+
+    pub fn get_random_constrained_coord(&self, constraints: Option<&[CellType]>) -> Option<(usize, usize)> {
+
+        let mut attempt = 0;
+
+        while attempt < MAX_COORD_LOCATION_ATTEMPTS {
+
+            let coord = (
+                rand::random_range(1..self.size.0),
+                rand::random_range(1..self.size.1)
+            );
+
+            if let Some(cs) = constraints {
+
+                // If we have found a coord satisfying one of the constraints, return
+                if cs.contains(&self.cells[coord.0][coord.1].cell_type) {
+                    return Some(coord);
+                } 
+            }
+            attempt += 1;
+        }
+        
+        // Nothing found (in time)
+        return None; 
     }
 }
 

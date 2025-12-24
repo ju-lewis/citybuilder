@@ -17,6 +17,7 @@ pub struct Human {
     coord: (usize, usize), // Intentionally not public!
 
     
+    
 }
 
 

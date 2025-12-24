@@ -33,24 +33,31 @@ pub fn generate_map(size: (usize, usize)) -> Map {
         }
     }
 
+    // Generate lakes
+    generate_lakes(&mut map);
+
 
     // Generate Trees
     let num_trees = rand::random_range(5..20);
     map.trees.reserve(num_trees);
 
     for i in 0..num_trees {
-        let mut coord: (usize, usize) = (0,0);
+        //let mut coord: (usize, usize) = (0,0);
 
-        // Loop until we get a position that's on the grass
-        loop {
-            if map.cells[coord.0][coord.1].cell_type == CellType::Grass {
-                break;
-            } 
+        //// Loop until we get a position that's on the grass
+        //loop {
+        //    if map.cells[coord.0][coord.1].cell_type == CellType::Grass {
+        //        break;
+        //    } 
 
-            coord.0 = rand::random_range(1..map.size.0);
-            coord.1 = rand::random_range(1..map.size.1);
-        }
+        //    coord.0 = rand::random_range(1..map.size.0);
+        //    coord.1 = rand::random_range(1..map.size.1);
+        //}
 
+        let coord = match map.get_random_constrained_coord(Some(&[CellType::Grass])) {
+            Some(c) => c,
+            None => continue
+        };
 
 
         // Draw surrounding leaves
@@ -87,9 +94,46 @@ pub fn generate_map(size: (usize, usize)) -> Map {
         // Record tree in data structure
         map.trees.push(i as u32);
     }
-    
+
 
     return map;
+}
+
+fn generate_lakes(map: &mut Map) {
+    
+    let num_lakes = rand::random_range(2..=5);
+    let mut rng = rand::rng();
+
+    for _ in 0..num_lakes {
+        
+        let coord = match map.get_random_constrained_coord(Some(&[CellType::Grass])) {
+            Some(c) => c,
+            None => continue
+        };
+
+
+        for x in -7..=7 {
+            for y in -3..=3 {
+
+                let new_row = coord.0.saturating_add_signed(y);
+                let new_col = coord.1.saturating_add_signed(x);
+                
+                if new_row >= map.size.0 || new_col >= map.size.1 {continue;}
+
+
+                if (x as f32).hypot(y as f32) < 5.0 {
+
+                    let cell = &mut map.cells[new_row][new_col];
+
+                    cell.cell_type = CellType::Water;
+                    cell.val = *['~', '='].choose(&mut rng).expect("RNG failed.");
+                }
+            }
+        }
+
+    }
+    
+
 }
 
 
