@@ -1,5 +1,3 @@
-use std::i8::MAX;
-
 use crate::world::map::Map;
 
 const MAX_WALK_ATTEMPTS: i32 = 10;
@@ -17,6 +15,8 @@ pub enum Action {
 pub struct Human {
     pub id: u32,
     coord: (usize, usize), // Intentionally not public!
+
+    
 }
 
 
@@ -33,6 +33,7 @@ impl Human {
         return self.coord;
     }
 
+    // This is simply where humans choose an action based on the conditions
     pub fn decide(&self, map: &Map) -> (u32, Action) {
 
         // TODO: Add condition for idling/wandering
@@ -54,7 +55,10 @@ impl Human {
         return (self.id, Action::None);
     }
 
+
+    // This is the primary 'update' step for humans (regarding internal state changes)
     pub fn act(&mut self, action: &Action) {
+
         match action {
             Action::None => (),
             Action::Move(new_coord) => self.coord = *new_coord,

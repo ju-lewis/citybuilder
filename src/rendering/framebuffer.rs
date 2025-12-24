@@ -1,7 +1,4 @@
 
-use termion::color::{self, Color};
-
-
 
 pub struct Pixel {
     pub val: String,

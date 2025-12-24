@@ -1,10 +1,6 @@
-
-use std::borrow::Borrow;
-
 use termion::color::{self, Fg};
 
 use crate::entities::human::{Action, Human};
-
 use super::generation::generate_map;
 
 #[derive(Clone, PartialEq)]

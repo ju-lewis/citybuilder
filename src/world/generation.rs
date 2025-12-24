@@ -1,6 +1,6 @@
 use super::map::{CellType, Map};
 
-use rand::{self, random_range, seq::IndexedRandom};
+use rand::{self, seq::IndexedRandom};
 
 
 
@@ -99,3 +99,6 @@ fn is_on_beach(coord: (usize, usize)) -> bool {
 
     dist > 0.0 && dist < 5.0
 }
+
+
+
