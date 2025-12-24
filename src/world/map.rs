@@ -129,6 +129,7 @@ impl Map {
 
 
             chosen_cell.cell_type = CellType::Human {id: i as u32};
+            chosen_cell.val = '☺';
 
             self.humans.push(new_human);
         }
@@ -179,9 +180,9 @@ impl Map {
         return coord.0 < self.size.0 && coord.1 < self.size.1;
     }
 
-    pub fn move_entity(&mut self, coord_1: (usize, usize), coord_2: (usize, usize)) -> Result<(), ()> {
+    fn move_entity(&mut self, coord_1: (usize, usize), coord_2: (usize, usize)) -> Result<(), ()> {
         
-        if self.cells[coord_1.0][coord_1.1].is_moveable() {
+        if self.cells[coord_1.0][coord_1.1].is_moveable() && self.is_walkable(coord_2) {
 
             // Move coord_2 stuff to the background
             self.cells[coord_2.0][coord_2.1].covered_val = Some(self.cells[coord_2.0][coord_2.1].val);
@@ -190,6 +191,7 @@ impl Map {
 
             // Now write to the 'top layer' of coord_2
             self.cells[coord_2.0][coord_2.1].cell_type = self.cells[coord_1.0][coord_1.1].cell_type.clone();
+            self.cells[coord_2.0][coord_2.1].val = self.cells[coord_1.0][coord_1.1].val;
 
             // Reset cell at coord_1
             if let Some(t) = &self.cells[coord_1.0][coord_1.1].covered_type {
@@ -200,10 +202,10 @@ impl Map {
                 self.cells[coord_1.0][coord_1.1].val = v.clone();
                 self.cells[coord_1.0][coord_1.1].covered_val = None;
             }
+            return Ok(());
         }
 
-
-        Ok(())
+        Err(())
     }
 }
 
