@@ -1,5 +1,15 @@
+use std::i8::MAX;
+
 use crate::world::map::Map;
 
+const MAX_WALK_ATTEMPTS: i32 = 10;
+
+
+#[derive(Debug)]
+pub enum Action {
+    None,
+    Move((usize, usize))
+}
 
 
 
@@ -19,21 +29,36 @@ impl Human {
         }
     }
 
-    pub fn update(&mut self, map: &Map) {
-        
+    pub fn get_coord(&self) -> (usize, usize) {
+        return self.coord;
+    }
+
+    pub fn decide(&self, map: &Map) -> (u32, Action) {
 
         // TODO: Add condition for idling/wandering
         // Idle/wandering behaviour
-        loop {
+        let mut attempts = 0;
+        while attempts < MAX_WALK_ATTEMPTS {
             let new_coord = (
-                self.coord.0.saturating_add_signed(rand::random_range(-1..1) as isize), 
-                self.coord.1.saturating_add_signed(rand::random_range(-1..1) as isize)
+                self.coord.0.saturating_add_signed(rand::random_range(-1..=1) as isize), 
+                self.coord.1.saturating_add_signed(rand::random_range(-1..=1) as isize)
             );
 
-            if map.is_walkable(new_coord) {
+            if map.is_in_bounds(new_coord) && map.is_walkable(new_coord) {
+                return (self.id, Action::Move(new_coord));
             }
+
+            attempts += 1;
         }
 
+        return (self.id, Action::None);
+    }
+
+    pub fn act(&mut self, action: &Action) {
+        match action {
+            Action::None => (),
+            Action::Move(new_coord) => self.coord = *new_coord,
+        }
     }
 }
 

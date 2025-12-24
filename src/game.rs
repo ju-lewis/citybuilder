@@ -3,7 +3,6 @@ use std::io::{Read, stdout};
 use std::process::exit;
 
 use termion::async_stdin;
-use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
 use crate::world::map::Map;
@@ -56,12 +55,14 @@ impl Game {
         // Game loop
         loop {
 
+            
             if stdin.read(&mut key_buf).is_ok() && key_buf[0] == b'q' {
                 print!("{}{}{}", termion::style::Reset, termion::clear::All, termion::cursor::Restore);
                 let _ = stdout.suspend_raw_mode();
                 exit(0);
             }
-            
+
+            self.map.update_entities();
 
             self.debug_render_all();
             self.framebuffer.draw();
