@@ -3,6 +3,8 @@ use termion::color::{self, Fg};
 use crate::entities::human::{Action, Human};
 use super::generation::generate_map;
 
+pub type Coord = (usize, usize);
+
 
 const NUM_HUMANS: u32 = 10;
 const MAX_COORD_LOCATION_ATTEMPTS: u32 = 10;
