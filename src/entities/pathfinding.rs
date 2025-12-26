@@ -2,7 +2,6 @@ use std::collections::BinaryHeap;
 
 use crate::world::map::{Coord, Map};
 
-
 struct HeapNode(f32, Coord);
 
 impl PartialEq for HeapNode {
@@ -27,12 +26,23 @@ impl Ord for HeapNode {
 
 impl Map {
     
-    pub fn get_path(&self, c1: Coord, c2: Coord) -> Option<Vec<Coord>> {
+    pub fn get_path(&self, start: Coord, goal: Coord) -> Option<Vec<Coord>> {
 
         // Basic greedy search algorithm (with backtracking)
         // NOTE: This is a MAX HEAP (not a min heap), so our heuristic will be inverted
         let mut priority_queue: BinaryHeap<HeapNode> = BinaryHeap::new();
 
+        // Add initial walkable cells
+        self.get_adjacent_walkable_cells(start)
+            .iter()
+            .map(|c| HeapNode(Self::compute_heuristic(*c, goal), *c))
+            .for_each(|n| priority_queue.push(n));
+
+
+        while !priority_queue.is_empty() {
+            
+        }
+            
 
         None
     }
@@ -40,9 +50,27 @@ impl Map {
 
     pub fn get_adjacent_walkable_cells(&self, c: Coord) -> Vec<Coord> {
 
+        let mut coords: Vec<Coord> = Vec::new();
 
-        
-        Vec::new()
+        for x in -1..=1 {
+            for y in -1..=1 {
+                
+                let new_row = c.0.saturating_add_signed(y);
+                let new_col = c.1.saturating_add_signed(x);
+
+                if self.is_walkable((new_row, new_col)) {
+                    coords.push((new_row, new_col));
+                }
+
+            }
+        }
+
+        return coords;
+    }
+
+    fn compute_heuristic(curr: Coord, target: Coord) -> f32 {
+
+        return (((target.0 - curr.0) as f32).powi(2) + ((target.1 - curr.1) as f32).powi(2)).sqrt();
     }
 
 }
