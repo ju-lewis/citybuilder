@@ -1,4 +1,4 @@
-use crate::world::map::Map;
+use crate::world::map::{Coord, Map};
 use std::collections::VecDeque;
 
 /* ------------------------------- CONSTANTS ------------------------------- */
@@ -7,7 +7,7 @@ const MAX_WALK_ATTEMPTS: i32 = 10;
 const STATUS_MAX: f32 = 1.0;
 
 
-const THIRST_GROWTH_RATE: f32 = 0.01;
+const THIRST_GROWTH_RATE: f32 = 0.001;
 const CRITICAL_THIRST: f32 = 0.7;
 
 
@@ -15,8 +15,7 @@ const CRITICAL_THIRST: f32 = 0.7;
 #[derive(Debug, PartialEq, Clone)]
 pub enum Action {
     None,
-    Move((usize, usize)),
-    FindWater,
+    Move(Vec<Coord>),
     Drink
 }
 
@@ -26,7 +25,7 @@ pub enum Action {
 pub struct Human {
     pub id: u32,
     coord: (usize, usize), // Intentionally not public!
-    action_queue: VecDeque<Action>,
+    pub action_queue: VecDeque<Action>,
 
     thirst: f32,
     
@@ -55,7 +54,7 @@ impl Human {
         // TODO: Check if 'Drink' action is already in the queue before continuing
         if self.thirst >= CRITICAL_THIRST {
 
-            return (self.id, Action::FindWater);
+            return (self.id, Action::Move(Vec::new()));
         }
 
 
@@ -74,7 +73,7 @@ impl Human {
             );
 
             if map.is_in_bounds(new_coord) && map.is_walkable(new_coord) {
-                return (self.id, Action::Move(new_coord));
+                return (self.id, Action::Move(vec![new_coord]));
             }
 
             attempts += 1;
@@ -89,12 +88,12 @@ impl Human {
 
 
     fn move_to_water(&mut self) {
-        
+        // Locate the nearest fresh water and navigate towards it
     }
 
 
     // This is the primary 'update' step for humans (regarding internal state changes)
-    pub fn act(&mut self) -> Action {
+    pub fn update(&mut self, curr_action: Action) {
 
         // GENERIC UPDATES
 
@@ -105,23 +104,14 @@ impl Human {
 
 
         // ACTIONS
-        let action = match self.action_queue.pop_front() {
-            Some(a) => a,
-            None => return Action::None
-        };
 
 
-        // TODO respond to decided action
-        match action {
+        match curr_action {
             Action::None => (),
-            Action::Move(new_coord) => self.coord = new_coord,
-            Action::FindWater => {
-                
-            },
+            Action::Move(ref coords) => self.coord = *coords.last().unwrap_or(&self.coord),
             Action::Drink => todo!(),
         };
 
-        return action;
     }
 }
 

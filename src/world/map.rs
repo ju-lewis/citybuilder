@@ -1,7 +1,9 @@
 use termion::color::{self, Fg};
+use std::cell;
 
 use crate::entities::human::{Action, Human};
 use super::generation::generate_map;
+
 
 pub type Coord = (usize, usize);
 
@@ -161,14 +163,32 @@ impl Map {
                 //}
 
                 self.humans[d.0 as usize].queue_action(&d.1);
-            });
 
-        self.humans
-            .iter()
-            .for_each(|h| {
-                //TODO: Call act and make required changes
-            });
+                // NOTE: Current action may be different to what was decided as
+                //       the decision was added to the *back* of the queue.
 
+                let current_action = match self.humans[d.0 as usize].action_queue.pop_front() {
+                    Some(a) => a,
+                    None => return
+                };
+                
+                match current_action {
+                    Action::None => (),
+                    Action::Move(ref coords) => {
+
+                        // Get the next coord to visit (at the top of the stack)
+                        if let Some(next_coord) = coords.first() {
+                            
+                            let _ = self.move_entity(self.humans[d.0 as usize].get_coord(), *next_coord);
+                        }
+                    },
+                    Action::Drink => (),
+                }
+
+
+                // Finally, update human's internal data
+                self.humans[d.0 as usize].update(current_action);
+            });
 
     }
 
