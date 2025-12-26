@@ -52,6 +52,7 @@ impl Game {
         let mut stdin = async_stdin();
         let mut key_buf = [0u8; 1];
 
+
         // Game loop
         loop {
 

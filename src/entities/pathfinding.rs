@@ -1,25 +1,46 @@
-use std::collections::BinaryHeap;
+use std::{collections::BinaryHeap, rc::Rc};
 
 use crate::world::map::{Coord, Map};
 
-struct HeapNode(f32, Coord);
+struct HeapNode {
+    val: f32,
+    cell: Coord,
+    prev: Option<Rc<HeapNode>>
+}
+
+impl HeapNode {
+
+    pub fn backtrack(&self) -> Vec<(usize, usize)> {
+
+        let mut maybe_prev = &self.prev;
+        let mut coords: Vec<Coord> = vec![self.cell];
+
+        while let Some(prev) = maybe_prev {
+            coords.push(prev.cell);
+
+            maybe_prev = &prev.prev;
+        }
+        
+        return coords;
+    }
+}
 
 impl PartialEq for HeapNode {
     fn eq(&self, other: &Self) -> bool {
-        return self.0.eq(&other.0);
+        return self.val.eq(&other.val);
     }
 }
 impl Eq for HeapNode {}
 
 impl PartialOrd for HeapNode {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        return self.0.partial_cmp(&other.0);
+        return self.val.partial_cmp(&other.val);
     }
 }
 
 impl Ord for HeapNode {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        return self.0.total_cmp(&other.0);
+        return self.val.total_cmp(&other.val);
     }
 }
 
@@ -29,24 +50,43 @@ impl Map {
     pub fn get_path(&self, start: Coord, goal: Coord) -> Option<Vec<Coord>> {
 
         // Basic greedy search algorithm (with backtracking)
-        // NOTE: This is a MAX HEAP (not a min heap), so our heuristic will be inverted
-        let mut priority_queue: BinaryHeap<HeapNode> = BinaryHeap::new();
+        // NOTE: This is a MAX HEAP (not a min heap), so our heuristic is the reciprocal 
+        // of a normal heuristic.
+        let mut priority_queue: BinaryHeap<Rc<HeapNode>> = BinaryHeap::new();
 
-        // Add initial walkable cells
-        self.get_adjacent_walkable_cells(start)
-            .iter()
-            .map(|c| HeapNode(Self::compute_heuristic(*c, goal), *c))
-            .for_each(|n| priority_queue.push(n));
+        let initial_node = HeapNode {
+            val: Self::compute_heuristic(start, goal),
+            cell: start,
+            prev: None
+        };
+
+        priority_queue.push(Rc::new(initial_node));
 
 
         while !priority_queue.is_empty() {
-            
+            let maybe_best_node = priority_queue.pop();
+
+            if let Some(best_node) = maybe_best_node {
+
+                // Goal test
+                if best_node.cell == goal {
+                    return Some(best_node.backtrack());
+                }
+
+                // Add all new reachable cells
+                self.get_adjacent_walkable_cells(best_node.cell)
+                    .iter()
+                    .map(|c| HeapNode {
+                        val: Self::compute_heuristic(*c, goal), 
+                        cell: *c,
+                        prev: Some(Rc::clone(&best_node))
+                    })
+                    .for_each(|n| priority_queue.push(Rc::new(n)));
+            }
         }
-            
 
         None
     }
-
 
     pub fn get_adjacent_walkable_cells(&self, c: Coord) -> Vec<Coord> {
 
@@ -70,7 +110,8 @@ impl Map {
 
     fn compute_heuristic(curr: Coord, target: Coord) -> f32 {
 
-        return (((target.0 - curr.0) as f32).powi(2) + ((target.1 - curr.1) as f32).powi(2)).sqrt();
+        // We're using the negative to make the heuristic appropriate for a max-heap
+        return -((target.0 as f32 - curr.0 as f32).powi(2) + (target.1 as f32 - curr.1 as f32).powi(2)).sqrt();
     }
 
 }
