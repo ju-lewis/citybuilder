@@ -1,8 +1,6 @@
 
 use std::io::{Read, stdout};
 use std::process::exit;
-use std::thread;
-use std::time::Duration;
 
 use termion::async_stdin;
 use termion::raw::IntoRawMode;
@@ -12,7 +10,7 @@ use crate::rendering::framebuffer::Framebuffer;
 
 
 pub struct Game {
-    paused: bool,
+    //paused: bool,
     map: Map,
     framebuffer: Framebuffer
 }
@@ -25,7 +23,7 @@ impl Game {
         let buf = Framebuffer::new();
 
         Game {
-            paused: false,
+            //paused: false,
             map: Map::new(buf.get_size()),
             framebuffer: buf
         }
