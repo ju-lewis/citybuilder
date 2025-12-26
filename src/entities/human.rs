@@ -48,24 +48,37 @@ impl Human {
     // This is simply where humans choose an action based on the conditions
     pub fn decide(&self, map: &Map) -> (u32, Action) {
 
+        // Address critical conditions first
+        if self.thirst >= CRITICAL_THIRST {
+
+            // TODO: Navigate to fresh water
+            return (self.id, Action::None);
+        }
+
+
+        // Otherwise continue navigating to target coord
+        if let Some(c) = self.target_coord {
+            // TODO: PATHFINDING TIME!!!!!
+        }
+
+
+        // If nothing else, idle/wander
         
 
-        if self.thirst < CRITICAL_THIRST {
 
-            // Idle/wandering behaviour
-            let mut attempts = 0;
-            while attempts < MAX_WALK_ATTEMPTS {
-                let new_coord = (
-                    self.coord.0.saturating_add_signed(rand::random_range(-1..=1) as isize), 
-                    self.coord.1.saturating_add_signed(rand::random_range(-1..=1) as isize)
-                );
+        // Idle/wandering behaviour
+        let mut attempts = 0;
+        while attempts < MAX_WALK_ATTEMPTS {
+            let new_coord = (
+                self.coord.0.saturating_add_signed(rand::random_range(-1..=1) as isize), 
+                self.coord.1.saturating_add_signed(rand::random_range(-1..=1) as isize)
+            );
 
-                if map.is_in_bounds(new_coord) && map.is_walkable(new_coord) {
-                    return (self.id, Action::Move(new_coord));
-                }
-
-                attempts += 1;
+            if map.is_in_bounds(new_coord) && map.is_walkable(new_coord) {
+                return (self.id, Action::Move(new_coord));
             }
+
+            attempts += 1;
         }
 
         return (self.id, Action::None);
