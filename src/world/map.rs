@@ -145,21 +145,30 @@ impl Map {
         //println!("Human decisions: {:?}", human_decisions);
         //panic!();
 
-        // Apply decisions to humans
+        // Update human action queues
         human_decisions
             .iter()
             .for_each(|d| {
 
-                let r = match d.1 {
-                    Action::None => Ok(()),
-                    Action::Move(new_coord) => self.move_entity(self.humans[d.0 as usize].get_coord(), new_coord),
-                };
+                //let r = match d.1 {
+                //    Action::None => Ok(()),
+                //    Action::Move(new_coord) => self.move_entity(self.humans[d.0 as usize].get_coord(), new_coord),
+                //};
 
-                // Now update internal log for human
-                if r.is_ok() {
-                    self.humans[d.0 as usize].act(&d.1);
-                }
+                //// Now update internal log for human
+                //if r.is_ok() {
+                //    self.humans[d.0 as usize].act(&d.1);
+                //}
+
+                self.humans[d.0 as usize].queue_action(&d.1);
             });
+
+        self.humans
+            .iter()
+            .for_each(|h| {
+                //TODO: Call act and make required changes
+            });
+
 
     }
 
