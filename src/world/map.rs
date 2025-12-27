@@ -8,7 +8,7 @@ use super::generation::generate_map;
 pub type Coord = (usize, usize);
 
 
-const NUM_HUMANS: u32 = 10;
+const NUM_HUMANS: u32 = 1;
 const MAX_COORD_LOCATION_ATTEMPTS: u32 = 10;
 
 
@@ -139,7 +139,7 @@ impl Map {
     pub fn update_entities(&mut self) {
 
         // Get decisions from humans
-        let human_decisions: Vec<(u32, Action)> = self.humans
+        let human_decisions: Vec<(u32, Vec<Action>)> = self.humans
             .iter()
             .map(|h| h.decide(self))
             .collect();
@@ -162,32 +162,25 @@ impl Map {
                 //    self.humans[d.0 as usize].act(&d.1);
                 //}
 
-                self.humans[d.0 as usize].queue_action(&d.1);
+                self.humans[d.0 as usize].queue_actions(&d.1);
 
                 // NOTE: Current action may be different to what was decided as
                 //       the decision was added to the *back* of the queue.
-
-                let current_action = match self.humans[d.0 as usize].action_queue.pop_front() {
+                let current_action = match self.humans[d.0 as usize].pop_current_action() {
                     Some(a) => a,
                     None => return
                 };
                 
                 match current_action {
                     Action::None => (),
-                    Action::Move(ref coords) => {
-
-                        // Get the next coord to visit (at the top of the stack)
-                        if let Some(next_coord) = coords.first() {
-                            
-                            let _ = self.move_entity(self.humans[d.0 as usize].get_coord(), *next_coord);
-                        }
+                    Action::Move(next_coord) => {
+                        let _ = self.move_entity(self.humans[d.0 as usize].get_coord(), next_coord);
                     },
                     Action::Drink => (),
                 }
 
-
                 // Finally, update human's internal data
-                self.humans[d.0 as usize].update(current_action);
+                self.humans[d.0 as usize].update(&current_action);
             });
 
     }

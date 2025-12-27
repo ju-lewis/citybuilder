@@ -15,7 +15,7 @@ const CRITICAL_THIRST: f32 = 0.7;
 #[derive(Debug, PartialEq, Clone)]
 pub enum Action {
     None,
-    Move(Vec<Coord>),
+    Move(Coord),
     Drink
 }
 
@@ -25,7 +25,7 @@ pub enum Action {
 pub struct Human {
     pub id: u32,
     coord: (usize, usize), // Intentionally not public!
-    pub action_queue: VecDeque<Action>,
+    action_queue: VecDeque<Action>,
 
     thirst: f32,
     
@@ -48,19 +48,31 @@ impl Human {
     }
 
     // This is simply where humans choose an action based on the conditions
-    pub fn decide(&self, map: &Map) -> (u32, Action) {
+    pub fn decide(&self, map: &Map) -> (u32, Vec<Action>) {
 
         // Address critical conditions first
-        // TODO: Check if 'Drink' action is already in the queue before continuing
-        if self.thirst >= CRITICAL_THIRST {
+        if self.thirst >= CRITICAL_THIRST && !self.action_queue.contains(&Action::Drink) {
 
-            return (self.id, Action::Move(Vec::new()));
+            compile_error!("Update this to actually find water");
+            let mut coords_to_water = map.get_path(self.coord, (0,50)).unwrap_or(Vec::new());
+
+            // NOTE: These are in *reverse* order, since the top of the stack is at the back
+            let mut actions: Vec<Action> = Vec::new();
+
+            while let Some(c) = coords_to_water.pop() {
+                actions.push(Action::Move(c))
+            }
+
+            // Finally, add the drink action
+            actions.push(Action::Drink);
+
+            return (self.id, actions);
         }
 
 
         // If action queue has things to do, then continue executing those.
         if !self.action_queue.is_empty() {
-            return (self.id, Action::None)
+            return (self.id, vec![Action::None])
         }
 
 
@@ -73,17 +85,26 @@ impl Human {
             );
 
             if map.is_in_bounds(new_coord) && map.is_walkable(new_coord) {
-                return (self.id, Action::Move(vec![new_coord]));
+                return (self.id, vec![Action::Move(new_coord)]);
             }
 
             attempts += 1;
         }
 
-        return (self.id, Action::None);
+        return (self.id, vec![Action::None]);
     }
 
-    pub fn queue_action(&mut self, action: &Action) {
-        self.action_queue.push_back(action.clone());
+    pub fn queue_actions(&mut self, actions: &Vec<Action>) {
+
+        actions
+            .iter()
+            .for_each(|a| {
+                self.action_queue.push_back(a.clone())
+            });
+    }
+
+    pub fn pop_current_action(&mut self) -> Option<Action> {
+        Some(self.action_queue.pop_front()?.clone())
     }
 
 
@@ -93,7 +114,7 @@ impl Human {
 
 
     // This is the primary 'update' step for humans (regarding internal state changes)
-    pub fn update(&mut self, curr_action: Action) {
+    pub fn update(&mut self, curr_action: &Action) {
 
         // GENERIC UPDATES
 
@@ -108,7 +129,7 @@ impl Human {
 
         match curr_action {
             Action::None => (),
-            Action::Move(ref coords) => self.coord = *coords.last().unwrap_or(&self.coord),
+            Action::Move(next_coord) => self.coord = *next_coord,
             Action::Drink => todo!(),
         };
 

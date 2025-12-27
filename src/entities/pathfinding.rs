@@ -1,4 +1,4 @@
-use std::{collections::BinaryHeap, rc::Rc};
+use std::{collections::{BinaryHeap, HashSet}, rc::Rc};
 
 use crate::world::map::{Coord, Map};
 
@@ -49,6 +49,16 @@ impl Map {
     
     pub fn get_path(&self, start: Coord, goal: Coord) -> Option<Vec<Coord>> {
 
+        // Early return for impossible searches
+        if !self.is_walkable(goal) {
+            return None;
+        }
+
+        // Create 'visited' dictionary
+        let mut visited: HashSet<Coord> = HashSet::new();
+        visited.insert(start);
+
+
         // Basic greedy search algorithm (with backtracking)
         // NOTE: This is a MAX HEAP (not a min heap), so our heuristic is the reciprocal 
         // of a normal heuristic.
@@ -81,7 +91,17 @@ impl Map {
                         cell: *c,
                         prev: Some(Rc::clone(&best_node))
                     })
-                    .for_each(|n| priority_queue.push(Rc::new(n)));
+                    .for_each(|n| {
+
+                        let cell = n.cell;
+                        
+                        if !visited.contains(&cell) {
+                            priority_queue.push(Rc::new(n));
+                        }
+
+                        // Mark the corresponding cell as visited
+                        visited.insert(cell);
+                    });
             }
         }
 
