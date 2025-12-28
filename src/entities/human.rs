@@ -1,5 +1,9 @@
+use crate::world::generation::LAKE_RADIUS;
 use crate::world::map::{Coord, Map};
+use crate::entities::pathfinding::{get_closest_coord};
 use std::collections::VecDeque;
+
+use super::pathfinding::get_offset_from_coord;
 
 /* ------------------------------- CONSTANTS ------------------------------- */
 
@@ -53,8 +57,13 @@ impl Human {
         // Address critical conditions first
         if self.thirst >= CRITICAL_THIRST && !self.action_queue.contains(&Action::Drink) {
 
-            compile_error!("Update this to actually find water");
-            let mut coords_to_water = map.get_path(self.coord, (0,50)).unwrap_or(Vec::new());
+            let nearest_water_coord = match self.find_water_edge(map) {
+                Some(c) => c,
+                None => return (self.id, vec![Action::None])
+            };
+
+
+            let mut coords_to_water = map.get_path(self.coord, nearest_water_coord).unwrap_or(Vec::new());
 
             // NOTE: These are in *reverse* order, since the top of the stack is at the back
             let mut actions: Vec<Action> = Vec::new();
@@ -108,8 +117,16 @@ impl Human {
     }
 
 
-    fn move_to_water(&mut self) {
-        // Locate the nearest fresh water and navigate towards it
+    fn find_water_edge(&self, map: &Map) -> Option<Coord> {
+
+        // Locate the nearest fresh water (edge cell)
+
+        let closest_lake_center = get_closest_coord(self.coord, &map.lakes)?;
+
+        let water_edge_cell = Some(get_offset_from_coord(self.coord, closest_lake_center, LAKE_RADIUS));
+
+
+        panic!("Closest lake: {:?}\r\nHuman: {:?}\r\nWater edge: {:?}", closest_lake_center, self.coord, water_edge_cell);
     }
 
 

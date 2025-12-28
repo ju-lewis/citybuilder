@@ -3,6 +3,9 @@ use super::map::{CellType, Map};
 use rand::{self, seq::IndexedRandom};
 
 
+pub const LAKE_RADIUS: f32 = 5.0;
+
+
 
 pub fn generate_map(size: (usize, usize)) -> Map {
     
@@ -111,6 +114,8 @@ fn generate_lakes(map: &mut Map) {
             None => continue
         };
 
+        map.lakes.push(coord);
+
 
         for x in -7..=7 {
             for y in -3..=3 {
@@ -121,7 +126,7 @@ fn generate_lakes(map: &mut Map) {
                 if new_row >= map.size.0 || new_col >= map.size.1 {continue;}
 
 
-                if (x as f32).hypot(y as f32) < 5.0 {
+                if (x as f32).hypot(y as f32) < LAKE_RADIUS {
 
                     let cell = &mut map.cells[new_row][new_col];
 

@@ -137,3 +137,39 @@ impl Map {
 }
 
 
+pub fn coord_dist(c1: Coord, c2: Coord) -> f32 {
+    return (c1.0 as f32 - c2.0 as f32).hypot(c1.1 as f32 - c2.1 as f32);
+}
+
+
+pub fn get_closest_coord(start: Coord, targets: &[Coord]) -> Option<Coord> {
+    targets
+        .iter()
+        .reduce(|acc, c| {
+            if coord_dist(start, *c) < coord_dist(start, *acc) {
+                return c;
+            }
+
+            return acc;
+    }).copied()
+}
+
+pub fn get_offset_from_coord(reference: Coord, center: Coord, offset: f32) -> Coord {
+    
+    // Get offset size as a fraction
+    let dist = coord_dist(reference, center);
+
+    let offset_fraction = offset / dist;
+    
+    let row_delta = offset_fraction * (reference.0 as f32 - center.0 as f32);
+    let col_delta = offset_fraction * (reference.1 as f32 - center.1 as f32);
+    
+
+    return (
+        center.0.saturating_add_signed(row_delta as isize), 
+        center.1.saturating_add_signed(col_delta as isize)
+    );
+}
+
+
+

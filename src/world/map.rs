@@ -66,11 +66,18 @@ impl MapCell {
 /// Data structure containing information about each cell.
 /// Has a 1-1 correspondance with the framebuffer
 pub struct Map {
+    // Map properties
     pub cells: Vec<Vec<MapCell>>,
     pub size: (usize, usize),
 
+    // Static map elements
+    pub lakes: Vec<Coord>,
+
+    // Dynamic map elements
     pub trees: Vec<u32>,
-    pub humans: Vec<Human>
+
+    // Entities
+    pub humans: Vec<Human>,
 }
 
 
@@ -88,6 +95,7 @@ impl Map {
         Map {
             cells: vec![vec![c; size.1.into()]; size.0.into()],
             size,
+            lakes: Vec::new(),
             trees: Vec::new(),
             humans: Vec::new()
         }
