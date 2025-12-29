@@ -170,7 +170,10 @@ impl Map {
                 //    self.humans[d.0 as usize].act(&d.1);
                 //}
 
-                self.humans[d.0 as usize].queue_actions(&d.1);
+                // Don't queue empty actions
+                if d.1 != vec![Action::None] {
+                    self.humans[d.0 as usize].queue_actions(&d.1);
+                }
 
                 // NOTE: Current action may be different to what was decided as
                 //       the decision was added to the *back* of the queue.
@@ -260,6 +263,36 @@ impl Map {
         
         // Nothing found (in time)
         return None; 
+    }
+
+    pub fn get_adjacent_coords(&self, c: Coord) -> Vec<Coord> {
+
+        let mut coords: Vec<Coord> = Vec::new();
+
+        for x in -1..=1 {
+            for y in -1..=1 {
+                
+                let new_row = c.0.saturating_add_signed(y);
+                let new_col = c.1.saturating_add_signed(x);
+
+                coords.push((new_row, new_col));
+
+            }
+        }
+
+        return coords;
+    }
+
+
+    pub fn is_adjacent_to_fresh_water(&self, coord: Coord) -> bool {
+        
+        // TODO: Update to properly check for *ONLY* fresh water (not just any water)
+        self.get_adjacent_coords(coord)
+            .iter()
+            .any(|c| {
+                self.cells[c.0][c.1].cell_type == CellType::Water
+            })
+
     }
 }
 

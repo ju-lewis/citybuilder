@@ -148,7 +148,8 @@ impl Human {
             Action::None => (),
             Action::Move(next_coord) => self.coord = *next_coord,
             Action::Drink => {
-                
+                self.thirst = 0.0;
+                //panic!("{:?}", self.action_queue);
             },
         };
 
