@@ -134,6 +134,24 @@ impl Map {
         return -((target.0 as f32 - curr.0 as f32).powi(2) + (target.1 as f32 - curr.1 as f32).powi(2)).sqrt();
     }
 
+
+    pub fn get_offset_walkable_coord(&self, reference: Coord, center: Coord, offset: f32) -> Option<Coord> {
+        let mut chosen_coord = center;
+        let mut additional_offset = 0f32;
+
+        while !self.is_walkable(chosen_coord) || additional_offset == 0f32  {
+
+            // Cap maximum time spent
+            if additional_offset >= 10.0 {
+                return None;
+            }
+
+            chosen_coord = get_offset_from_coord(reference, center, offset + additional_offset);
+            additional_offset += 1.0;
+        }
+
+        Some(chosen_coord)
+    }
 }
 
 
@@ -163,13 +181,14 @@ pub fn get_offset_from_coord(reference: Coord, center: Coord, offset: f32) -> Co
     
     let row_delta = offset_fraction * (reference.0 as f32 - center.0 as f32);
     let col_delta = offset_fraction * (reference.1 as f32 - center.1 as f32);
-    
+
 
     return (
         center.0.saturating_add_signed(row_delta as isize), 
         center.1.saturating_add_signed(col_delta as isize)
     );
 }
+
 
 
 

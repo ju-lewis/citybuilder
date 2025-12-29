@@ -123,10 +123,10 @@ impl Human {
 
         let closest_lake_center = get_closest_coord(self.coord, &map.lakes)?;
 
-        let water_edge_cell = Some(get_offset_from_coord(self.coord, closest_lake_center, LAKE_RADIUS));
+        let water_edge_cell = map.get_offset_walkable_coord(self.coord, closest_lake_center, LAKE_RADIUS);
 
-
-        panic!("Closest lake: {:?}\r\nHuman: {:?}\r\nWater edge: {:?}", closest_lake_center, self.coord, water_edge_cell);
+        //panic!("Closest lake: {:?}\r\nHuman: {:?}\r\nWater edge: {:?} - Is walkable?: {}", closest_lake_center, self.coord, water_edge_cell, map.is_walkable(water_edge_cell?));
+        return water_edge_cell;
     }
 
 
@@ -147,7 +147,9 @@ impl Human {
         match curr_action {
             Action::None => (),
             Action::Move(next_coord) => self.coord = *next_coord,
-            Action::Drink => todo!(),
+            Action::Drink => {
+                
+            },
         };
 
     }
