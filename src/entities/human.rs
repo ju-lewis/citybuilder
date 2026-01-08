@@ -31,6 +31,7 @@ pub struct Human {
     coord: (usize, usize), // Intentionally not public!
     action_queue: VecDeque<Action>,
 
+    health: f32,
     thirst: f32,
     
 }
@@ -43,6 +44,7 @@ impl Human {
             id,
             coord,
             action_queue: VecDeque::new(),
+            health: 1.0,
             thirst: 0.0,
         }
     }
